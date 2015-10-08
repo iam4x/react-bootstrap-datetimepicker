@@ -71,18 +71,18 @@ export default class DateTimeField extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    if (moment(nextProps.dateTime, nextProps.format, nextProps.locale, true).isValid()) {
-      return this.setState({
-        viewDate: moment(nextProps.dateTime, nextProps.format, nextProps.locale, true).startOf("month"),
-        selectedDate: moment(nextProps.dateTime, nextProps.format, nextProps.locale, true),
-        inputValue: moment(nextProps.dateTime, nextProps.format, nextProps.locale, true).format(this.resolvePropsInputFormat(nextProps))
-      });
-    }
+    let state = {};
     if (nextProps.inputFormat !== this.props.inputFormat) {
-      return this.setState({
-        inputFormat: nextProps.inputFormat
-      });
+        state.inputFormat = nextProps.inputFormat;
+        state.inputValue = moment(nextProps.dateTime, nextProps.format, nextProps.locale, true).format(nextProps.inputFormat);
     }
+
+    if (nextProps.dateTime !== this.props.dateTime && moment(nextProps.dateTime, nextProps.format, nextProps.locale, true).isValid()) {
+      state.viewDate = moment(nextProps.dateTime, nextProps.format, nextProps.locale, true).startOf("month");
+      state.selectedDate = moment(nextProps.dateTime, nextProps.format, nextProps.locale, true);
+      state.inputValue = moment(nextProps.dateTime, nextProps.format, nextProps.locale, true).format(nextProps.inputFormat ? nextProps.inputFormat : this.state.inputFormat);
+    }
+    return this.setState(state);
   }
 
 
@@ -99,7 +99,7 @@ export default class DateTimeField extends Component {
     return this.setState({
       inputValue: value
     }, function() {
-      return this.props.onChange(this.newLocalizedMoment(this.state.inputValue, this.state.inputFormat, true).format(this.props.format));
+      return this.props.onChange(this.newLocalizedMoment(this.state.inputValue, this.state.inputFormat, true).format(this.props.format), value);
     });
 
   }
@@ -373,4 +373,3 @@ export default class DateTimeField extends Component {
     );
   }
 }
-
